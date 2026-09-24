@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
+import { playSpinSound, scheduleDropSound, stopSpinSound } from "#/audio/drawSound";
 import type { PrizeId } from "#/lottery/config";
 import { garaponAssets } from "./assets";
 import { CANVAS_SIZE, LAYOUT, TIMING } from "./layout";
@@ -59,6 +60,7 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
     finishSpin.current = null;
     animations.current.forEach((animation) => animation.cancel());
     animations.current = [];
+    stopSpinSound();
   };
 
   useEffect(() => cancel, []);
@@ -69,6 +71,7 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
       const currentRun = run.current;
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       setBall({ prizeId, color });
+      playSpinSound();
 
       await new Promise<void>((resolve) => {
         finishSpin.current = resolve;
@@ -90,7 +93,9 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
         spinFrame.current = requestAnimationFrame(tick);
       });
       if (currentRun !== run.current) return;
+      stopSpinSound();
       onDrop?.();
+      if (!reducedMotion) scheduleDropSound(TIMING.dropMs * TIMING.landOffset);
 
       const { exit, chute, rest } = LAYOUT.ballPath;
       const drop = ballRef.current?.animate(
@@ -103,7 +108,7 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
               { transform: pos(exit, 0.4), opacity: 0, easing: "ease-out" },
               { transform: pos(exit, 1), opacity: 1, offset: 0.15, easing: "ease-in" },
               { transform: pos(chute), offset: 0.5, easing: "ease-in" },
-              { transform: pos(rest), offset: 0.72, easing: "ease-out" },
+              { transform: pos(rest), offset: TIMING.landOffset, easing: "ease-out" },
               {
                 transform: pos({ x: rest.x + 3, y: rest.y - 13 }),
                 offset: 0.86,
