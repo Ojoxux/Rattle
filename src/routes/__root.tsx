@@ -23,7 +23,11 @@ export const Route = createRootRoute({
         rel: "stylesheet",
         href: appCss,
       },
+      ...(import.meta.env.DEV ? [{ rel: "stylesheet", href: "/virtual:stylex.css" }] : []),
     ],
+    headScripts: import.meta.env.DEV
+      ? [{ type: "module", children: "import('virtual:stylex:runtime');" }]
+      : [],
   }),
   shellComponent: RootDocument,
 });

@@ -1,10 +1,13 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { devtools } from "@tanstack/devtools-vite";
 
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 
 import viteReact from "@vitejs/plugin-react";
-import stylexPlugin from "vite-plugin-stylex";
+import stylex from "@stylexjs/unplugin";
+
+const srcDir = fileURLToPath(new URL("./src", import.meta.url));
 
 const config = defineConfig({
   fmt: {},
@@ -14,7 +17,12 @@ const config = defineConfig({
     options: { typeAware: true, typeCheck: true },
   },
   resolve: { tsconfigPaths: true },
-  plugins: lazyPlugins(() => [devtools(), stylexPlugin(), tanstackStart(), viteReact()]),
+  plugins: lazyPlugins(() => [
+    devtools(),
+    stylex.vite({ aliases: { "#/*": [`${srcDir}/*`] } }),
+    tanstackStart(),
+    viteReact(),
+  ]),
 });
 
 export default config;
