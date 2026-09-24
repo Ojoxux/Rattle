@@ -1,6 +1,8 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
+import * as stylex from "@stylexjs/stylex";
 
 import appCss from "../styles.css?url";
+import { colors } from "#/tokens.stylex";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -26,13 +28,35 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 });
 
+const styles = stylex.create({
+  html: {
+    height: "100%",
+    margin: 0,
+    overflow: "hidden",
+    colorScheme: "light",
+  },
+  body: {
+    height: "100%",
+    margin: 0,
+    overflow: "hidden",
+    background: colors.bg,
+    color: colors.text,
+    fontFamily:
+      '"Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, -apple-system, "Segoe UI", sans-serif',
+    WebkitFontSmoothing: "antialiased",
+    WebkitTapHighlightColor: "transparent",
+    userSelect: "none",
+    touchAction: "manipulation",
+  },
+});
+
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ja">
+    <html lang="ja" {...stylex.props(styles.html)}>
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body {...stylex.props(styles.body)}>
         {children}
         <Scripts />
       </body>

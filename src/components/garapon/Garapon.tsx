@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import * as stylex from "@stylexjs/stylex";
 import type { PrizeId } from "#/lottery/config";
 import { garaponAssets } from "./assets";
 import { CANVAS_SIZE, LAYOUT, TIMING } from "./layout";
@@ -22,6 +23,21 @@ function Ball({ prizeId, color }: { prizeId: PrizeId; color: string }) {
 
 const pos = (p: { x: number; y: number }, scale = 1) =>
   `translate(${p.x}px, ${p.y}px) scale(${scale})`;
+
+const styles = stylex.create({
+  garapon: {
+    position: "relative",
+    height: "100%",
+    aspectRatio: "1",
+    maxWidth: "100%",
+  },
+  layer: {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+  },
+});
 
 export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(function Garapon(
   { onDrop },
@@ -108,9 +124,9 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
   }));
 
   return (
-    <div className="garapon" role="img" aria-label="木製のガラポン抽選器">
+    <div {...stylex.props(styles.garapon)} role="img" aria-label="木製のガラポン抽選器">
       <svg
-        className="garapon-layer"
+        {...stylex.props(styles.layer)}
         viewBox={`0 0 ${CANVAS_SIZE} ${CANVAS_SIZE}`}
         aria-hidden="true"
       >

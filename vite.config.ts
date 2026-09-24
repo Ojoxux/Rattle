@@ -4,7 +4,7 @@ import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 
 import viteReact from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
+import stylexPlugin from "vite-plugin-stylex";
 
 const config = defineConfig({
   fmt: {},
@@ -14,7 +14,7 @@ const config = defineConfig({
     options: { typeAware: true, typeCheck: true },
   },
   resolve: { tsconfigPaths: true },
-  plugins: lazyPlugins(() => [devtools(), tailwindcss(), tanstackStart(), viteReact()]),
+  plugins: lazyPlugins(() => [devtools(), stylexPlugin(), tanstackStart(), viteReact()]),
 });
 
 export default config;
