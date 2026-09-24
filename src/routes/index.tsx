@@ -5,6 +5,7 @@ import { AdminPanel } from "#/components/AdminPanel";
 import { Garapon, type GaraponHandle } from "#/components/garapon/Garapon";
 import { preloadDrawSound } from "#/audio/drawSound";
 import { unlockPrizeBell } from "#/audio/prizeBell";
+import { unlockResultSound } from "#/audio/resultSound";
 import { ResultOverlay } from "#/components/ResultOverlay";
 import { PRIZES, getPrize, type PrizeId } from "#/lottery/config";
 import {
@@ -153,6 +154,7 @@ function LotteryPage() {
       return;
     }
     void unlockPrizeBell();
+    void unlockResultSound();
     drawingRef.current = true;
     setPhase("drawing");
     const next = applyDraw(latest, prizeId);
