@@ -16,4 +16,4 @@ todos.json
 .env.*
 !.env.example
 .direnv
-docs/superpowers/specs
+docs
