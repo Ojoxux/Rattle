@@ -31,10 +31,7 @@ describe("loadState", () => {
   });
 
   it("fills in missing prizes with their initial values", () => {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ A: { remaining: 0, drawn: 2 } }),
-    );
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ A: { remaining: 0, drawn: 2 } }));
     const state = loadState();
     expect(state.A).toEqual({ remaining: 0, drawn: 2 });
     expect(state.B).toEqual({ remaining: 5, drawn: 0 });

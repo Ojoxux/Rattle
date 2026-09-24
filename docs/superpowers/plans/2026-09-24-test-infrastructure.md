@@ -21,6 +21,7 @@
 ### Task 1: `vite.config.ts` に test.include を追加してテストスコープを固定する
 
 **Files:**
+
 - Modify: `vite.config.ts:12-26`
 
 - [ ] **Step 1: `test.include` を追加する**
@@ -65,6 +66,7 @@ git commit -m "テストのスコープをsrc配下に限定する"
 ### Task 2: `happy-dom` を devDependency に追加する
 
 **Files:**
+
 - Modify: `package.json`(`vp install` が自動で更新)
 
 - [ ] **Step 1: インストールする**
@@ -84,6 +86,7 @@ git commit -m "happy-domを追加する"
 ### Task 3: `src/lottery/storage.test.ts` を新規作成する
 
 **Files:**
+
 - Create: `src/lottery/storage.test.ts`
 - Reference: `src/lottery/storage.ts`(変更しない)、`src/lottery/draw.ts`(変更しない)、`src/lottery/config.ts`(変更しない)
 
@@ -125,10 +128,7 @@ describe("loadState", () => {
   });
 
   it("fills in missing prizes with their initial values", () => {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ A: { remaining: 0, drawn: 2 } }),
-    );
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ A: { remaining: 0, drawn: 2 } }));
     const state = loadState();
     expect(state.A).toEqual({ remaining: 0, drawn: 2 });
     expect(state.B).toEqual({ remaining: 5, drawn: 0 });
@@ -178,6 +178,7 @@ git commit -m "storage.tsのユニットテストを追加する"
 ### Task 4: `src/lottery/draw.test.ts` にエッジケースを追加する
 
 **Files:**
+
 - Modify: `src/lottery/draw.test.ts:1-2`(import 行)、末尾に追記
 
 - [ ] **Step 1: import に `adjustRemaining` を追加する**
@@ -185,7 +186,13 @@ git commit -m "storage.tsのユニットテストを追加する"
 `src/lottery/draw.test.ts:2` を次のように変更する。
 
 ```ts
-import { adjustRemaining, applyDraw, createInitialState, drawPrize, type LotteryState } from "./draw";
+import {
+  adjustRemaining,
+  applyDraw,
+  createInitialState,
+  drawPrize,
+  type LotteryState,
+} from "./draw";
 ```
 
 - [ ] **Step 2: `applyDraw` と `adjustRemaining` のテストをファイル末尾に追記する**
@@ -232,6 +239,7 @@ git commit -m "applyDrawとadjustRemainingのテストを追加する"
 ### Task 5: `.github/workflows/ci.yml` を新規作成する
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: ワークフローファイルを書く**

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vite-plus/test";
-import { adjustRemaining, applyDraw, createInitialState, drawPrize, type LotteryState } from "./draw";
+import {
+  adjustRemaining,
+  applyDraw,
+  createInitialState,
+  drawPrize,
+  type LotteryState,
+} from "./draw";
 
 function state(a: number, b: number, c: number, d: number): LotteryState {
   return {
