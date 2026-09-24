@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import { AdminPanel } from "#/components/AdminPanel";
 import { Garapon, type GaraponHandle } from "#/components/garapon/Garapon";
+import { playDrawSound } from "#/audio/drawSound";
 import { unlockPrizeBell } from "#/audio/prizeBell";
 import { ResultOverlay } from "#/components/ResultOverlay";
 import { PRIZES, getPrize, type PrizeId } from "#/lottery/config";
@@ -149,6 +150,7 @@ function LotteryPage() {
       return;
     }
     void unlockPrizeBell();
+    playDrawSound();
     drawingRef.current = true;
     setPhase("drawing");
     const next = applyDraw(latest, prizeId);
