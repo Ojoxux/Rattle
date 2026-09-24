@@ -15,4 +15,5 @@ export const TIMING = {
   spinMs: 2400,
   spinTurns: 3,
   dropMs: 850,
+  landOffset: 0.72,
 };

@@ -43,7 +43,7 @@ const styles = stylex.create({
     height: "100%",
     margin: 0,
     overflow: "hidden",
-    background: colors.bg,
+    backgroundColor: colors.bg,
     color: colors.text,
     fontFamily:
       '"Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, -apple-system, "Segoe UI", sans-serif',

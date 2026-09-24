@@ -28,7 +28,7 @@ export const button = stylex.create({
     },
   },
   primary: {
-    background: {
+    backgroundColor: {
       default: colors.primary,
       ":active:not(:disabled)": "#3a4048",
     },
@@ -39,17 +39,17 @@ export const button = stylex.create({
     },
   },
   secondary: {
-    background: colors.surface,
+    backgroundColor: colors.surface,
     borderColor: colors.line,
     color: colors.text,
   },
   danger: {
-    background: colors.surface,
+    backgroundColor: colors.surface,
     borderColor: "#f0c4c7",
     color: colors.danger,
   },
   dangerSolid: {
-    background: colors.danger,
+    backgroundColor: colors.danger,
     borderColor: colors.danger,
     color: "#fff",
   },
@@ -91,7 +91,7 @@ export const iconButton = stylex.create({
       default: "pointer",
       ":disabled": "default",
     },
-    background: {
+    backgroundColor: {
       default: colors.surface,
       ":active:not(:disabled)": "#eceef1",
     },
@@ -120,7 +120,7 @@ export const stepperButton = stylex.create({
       default: "pointer",
       ":disabled": "default",
     },
-    background: {
+    backgroundColor: {
       default: colors.surface,
       ":active:not(:disabled)": "#eceef1",
     },
