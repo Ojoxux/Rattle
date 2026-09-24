@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { applyDraw, createInitialState, drawPrize, type LotteryState } from "./draw";
+import { adjustRemaining, applyDraw, createInitialState, drawPrize, type LotteryState } from "./draw";
 
 function state(a: number, b: number, c: number, d: number): LotteryState {
   return {
@@ -36,5 +36,26 @@ describe("drawPrize", () => {
     expect(drawPrize(s)).toBeNull();
     expect(s.A).toEqual({ remaining: 0, drawn: 2 });
     expect(s.D).toEqual({ remaining: 0, drawn: 31 });
+  });
+});
+
+describe("applyDraw", () => {
+  it("throws when the prize has no remaining tickets", () => {
+    const s = state(0, 5, 12, 31);
+    expect(() => applyDraw(s, "A")).toThrow("A has no remaining tickets");
+  });
+});
+
+describe("adjustRemaining", () => {
+  it("increases remaining by delta", () => {
+    const s = state(2, 5, 12, 31);
+    const next = adjustRemaining(s, "A", 3);
+    expect(next.A).toEqual({ remaining: 5, drawn: 0 });
+  });
+
+  it("clamps remaining at 0 instead of going negative", () => {
+    const s = state(2, 5, 12, 31);
+    const next = adjustRemaining(s, "A", -10);
+    expect(next.A).toEqual({ remaining: 0, drawn: 0 });
   });
 });
