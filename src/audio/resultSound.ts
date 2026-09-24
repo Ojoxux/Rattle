@@ -1,15 +1,15 @@
 import type { PrizeId } from "#/lottery/config";
 
 let cheerAudio: HTMLAudioElement | undefined;
-let systemAudio: HTMLAudioElement | undefined;
+let tadaAudio: HTMLAudioElement | undefined;
 
 function audioFor(prizeId: PrizeId) {
   if (prizeId === "A") {
     cheerAudio ??= new Audio("/audio/cheer-applause.mp3");
     return cheerAudio;
   }
-  systemAudio ??= new Audio("/audio/button-system.mp3");
-  return systemAudio;
+  tadaAudio ??= new Audio("/audio/tada.mp3");
+  return tadaAudio;
 }
 
 export async function unlockResultSound() {
