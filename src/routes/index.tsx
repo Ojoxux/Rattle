@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import { AdminPanel } from "#/components/AdminPanel";
 import { Garapon, type GaraponHandle } from "#/components/garapon/Garapon";
+import { unlockPrizeBell } from "#/audio/prizeBell";
 import { ResultOverlay } from "#/components/ResultOverlay";
 import { PRIZES, getPrize, type PrizeId } from "#/lottery/config";
 import {
@@ -103,7 +104,7 @@ const styles = stylex.create({
     borderStyle: "solid",
     borderColor: colors.line,
     borderRadius: radius.card,
-    background: colors.surface,
+    backgroundColor: colors.surface,
   },
   stockName: {
     fontWeight: 700,
@@ -147,6 +148,7 @@ function LotteryPage() {
       setState(latest);
       return;
     }
+    void unlockPrizeBell();
     drawingRef.current = true;
     setPhase("drawing");
     const next = applyDraw(latest, prizeId);
@@ -205,9 +207,7 @@ function LotteryPage() {
           {finished && phase === "idle" ? (
             <div {...stylex.props(styles.finished)}>
               <p {...stylex.props(styles.finishedTitle)}>くじは終了しました</p>
-              <p {...stylex.props(styles.finishedSub)}>
-                たくさんのご利用ありがとうございました！
-              </p>
+              <p {...stylex.props(styles.finishedSub)}>たくさんのご利用ありがとうございました！</p>
             </div>
           ) : (
             <button
@@ -235,9 +235,7 @@ function LotteryPage() {
               <span {...stylex.props(styles.stockName)}>{p.name}</span>
               <span {...stylex.props(styles.stockCount)}>
                 あと
-                <strong {...stylex.props(styles.stockCountStrong)}>
-                  {state![p.id].remaining}
-                </strong>
+                <strong {...stylex.props(styles.stockCountStrong)}>{state![p.id].remaining}</strong>
                 個
               </span>
             </li>

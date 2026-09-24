@@ -3,6 +3,7 @@ import * as stylex from "@stylexjs/stylex";
 import { getPrize, type PrizeId } from "#/lottery/config";
 import { colors } from "#/tokens.stylex";
 import { button } from "#/styles/ui.stylex";
+import { PrizeBell } from "./PrizeBell";
 import { Confetti } from "./Confetti";
 import { PrizeBall } from "./garapon/generatedArt";
 
@@ -30,7 +31,7 @@ const styles = stylex.create({
     zIndex: 20,
     display: "grid",
     placeItems: "center",
-    background: "rgba(244, 245, 247, 0.94)",
+    backgroundColor: "rgba(244, 245, 247, 0.94)",
     animationName: fadeIn,
     animationDuration: "0.25s",
     animationTimingFunction: "ease-out",
@@ -45,11 +46,16 @@ const styles = stylex.create({
     animationDuration: "0.4s",
     animationTimingFunction: "cubic-bezier(0.2, 0.8, 0.3, 1)",
   },
-  ball: {
+  visuals: {
     position: "relative",
     width: 120,
     height: 120,
     marginBottom: 28,
+  },
+  ball: {
+    position: "relative",
+    width: 120,
+    height: 120,
   },
   ripple: {
     position: "absolute",
@@ -105,12 +111,15 @@ export function ResultOverlay({ prizeId, onClose }: { prizeId: PrizeId; onClose:
     >
       {isTop && <Confetti />}
       <div {...stylex.props(styles.body)} style={{ "--prize": prize.color } as CSSProperties}>
-        <div {...stylex.props(styles.ball)}>
-          <span {...stylex.props(styles.ripple)} />
-          <span {...stylex.props(styles.ripple, styles.rippleLate)} />
-          <span {...stylex.props(styles.ballArt)}>
-            <PrizeBall prizeId={prizeId} />
-          </span>
+        <div {...stylex.props(styles.visuals)}>
+          <div {...stylex.props(styles.ball)}>
+            <span {...stylex.props(styles.ripple)} />
+            <span {...stylex.props(styles.ripple, styles.rippleLate)} />
+            <span {...stylex.props(styles.ballArt)}>
+              <PrizeBall prizeId={prizeId} />
+            </span>
+          </div>
+          <PrizeBell prizeId={prizeId} />
         </div>
         <p {...stylex.props(styles.name)}>{prize.name}</p>
         <p {...stylex.props(styles.message)}>おめでとうございます！</p>

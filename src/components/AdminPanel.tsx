@@ -27,7 +27,7 @@ const styles = stylex.create({
     zIndex: 30,
     display: "flex",
     justifyContent: "flex-end",
-    background: "rgba(31, 35, 40, 0.3)",
+    backgroundColor: "rgba(31, 35, 40, 0.3)",
     animationName: fadeIn,
     animationDuration: "0.2s",
     animationTimingFunction: "ease-out",
@@ -39,7 +39,7 @@ const styles = stylex.create({
     width: "min(520px, 100%)",
     height: "100%",
     padding: "24px 32px 32px",
-    background: colors.surface,
+    backgroundColor: colors.surface,
     animationName: slideIn,
     animationDuration: "0.25s",
     animationTimingFunction: "cubic-bezier(0.2, 0.8, 0.3, 1)",
@@ -108,7 +108,7 @@ const styles = stylex.create({
     zIndex: 40,
     display: "grid",
     placeItems: "center",
-    background: "rgba(31, 35, 40, 0.4)",
+    backgroundColor: "rgba(31, 35, 40, 0.4)",
     animationName: fadeIn,
     animationDuration: "0.15s",
     animationTimingFunction: "ease-out",
@@ -117,7 +117,7 @@ const styles = stylex.create({
     width: "min(440px, calc(100% - 48px))",
     padding: 28,
     borderRadius: 20,
-    background: colors.surface,
+    backgroundColor: colors.surface,
   },
   confirmTitle: {
     margin: "0 0 12px",
@@ -180,7 +180,10 @@ export function AdminPanel({ state, onAdjust, onReset, onClose }: Props) {
               return (
                 <tr key={p.id}>
                   <td {...stylex.props(styles.td, styles.tdFirst)}>
-                    <span {...stylex.props(dot.base, dot.inTable)} style={{ background: p.color }} />
+                    <span
+                      {...stylex.props(dot.base, dot.inTable)}
+                      style={{ background: p.color }}
+                    />
                     {p.name}
                   </td>
                   <td {...stylex.props(styles.td)}>
