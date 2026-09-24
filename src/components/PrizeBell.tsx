@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { PrizeId } from "#/lottery/config";
 import { bellCycles, playPrizeBell, unlockPrizeBell } from "#/audio/prizeBell";
+import { playResultSound, unlockResultSound } from "#/audio/resultSound";
 
 const swing = stylex.keyframes({
   "0%": { transform: "rotate(0deg)" },
@@ -46,6 +47,7 @@ export function PrizeBell({ prizeId }: { prizeId: PrizeId }) {
   const [replay, setReplay] = useState(0);
   const cycles = bellCycles(prizeId);
   useEffect(() => playPrizeBell(prizeId), [prizeId, replay]);
+  useEffect(() => playResultSound(prizeId), [prizeId, replay]);
   if (!cycles) return null;
   return (
     <button
@@ -55,6 +57,7 @@ export function PrizeBell({ prizeId }: { prizeId: PrizeId }) {
       title="鐘をもう一度鳴らす"
       onClick={async () => {
         await unlockPrizeBell();
+        await unlockResultSound();
         setReplay((value) => value + 1);
       }}
     >
