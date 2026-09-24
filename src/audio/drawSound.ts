@@ -7,7 +7,7 @@ function getSpinAudio() {
 }
 
 function getDropAudio() {
-  dropAudio ??= new Audio("/audio/garapon-drop.mp3");
+  dropAudio ??= new Audio("/audio/garapon-drop.wav");
   return dropAudio;
 }
 
@@ -41,8 +41,8 @@ export function stopSpinSound() {
   }
 }
 
-// The clip's thud peaks ~120ms in, so start it that much early to land exactly on impact.
-const DROP_ATTACK_LEAD_MS = 120;
+// The clip's thud peaks ~20ms in, so start it that much early to land exactly on impact.
+const DROP_ATTACK_LEAD_MS = 20;
 
 export function scheduleDropSound(delayMs: number) {
   window.setTimeout(
