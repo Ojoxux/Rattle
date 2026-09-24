@@ -9,7 +9,10 @@
     "dev": "vp dev",
     "generate-routes": "tsr generate",
     "build": "vp build",
-    "preview": "vp preview"
+    "preview": "vp preview",
+    "lint": "oxlint",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
   },
   "dependencies": {
     "@stylexjs/stylex": "^0.19.1",
@@ -29,6 +32,8 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.1",
     "happy-dom": "^20.14.5",
+    "oxfmt": "^0.70.0",
+    "oxlint": "^1.85.0",
     "typescript": "^6.0.2",
     "vite": "catalog:",
     "vite-plus": "catalog:"

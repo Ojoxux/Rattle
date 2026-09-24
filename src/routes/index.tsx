@@ -133,6 +133,8 @@ function LotteryPage() {
   const garaponRef = useRef<GaraponHandle>(null);
 
   useEffect(() => {
+    // localStorageはマウント後にしか読めない
+    // oxlint-disable-next-line react/set-state-in-effect
     setState(loadState());
     preloadDrawSound();
   }, []);

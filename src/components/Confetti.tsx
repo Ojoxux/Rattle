@@ -1,4 +1,4 @@
-import { useMemo, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import * as stylex from "@stylexjs/stylex";
 import { PRIZES } from "#/lottery/config";
 
@@ -26,18 +26,16 @@ const styles = stylex.create({
 });
 
 export function Confetti({ count = 90 }: { count?: number }) {
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: count }, (_, i) => ({
-        left: Math.random() * 100,
-        delay: Math.random() * 0.8,
-        duration: 2.2 + Math.random() * 1.6,
-        drift: (Math.random() - 0.5) * 160,
-        spin: (Math.random() - 0.5) * 1440,
-        width: 8 + Math.random() * 6,
-        color: PRIZES[i % PRIZES.length].color,
-      })),
-    [count],
+  const [pieces] = useState(() =>
+    Array.from({ length: count }, (_, i) => ({
+      left: Math.random() * 100,
+      delay: Math.random() * 0.8,
+      duration: 2.2 + Math.random() * 1.6,
+      drift: (Math.random() - 0.5) * 160,
+      spin: (Math.random() - 0.5) * 1440,
+      width: 8 + Math.random() * 6,
+      color: PRIZES[i % PRIZES.length].color,
+    })),
   );
 
   return (
