@@ -21,6 +21,7 @@
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@stylexjs/unplugin": "^0.19.1",
     "@tanstack/devtools-vite": "latest",
     "@tanstack/router-cli": "^1.132.0",
     "@types/node": "^22.10.2",
@@ -29,7 +30,6 @@
     "@vitejs/plugin-react": "^6.0.1",
     "typescript": "^6.0.2",
     "vite": "catalog:",
-    "vite-plugin-stylex": "^0.13.0",
     "vite-plus": "catalog:"
   },
   "devEngines": {
