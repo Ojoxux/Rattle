@@ -115,22 +115,27 @@ button:disabled {
   max-width: 100%;
 }
 
-.garapon-layer,
-.garapon-rotor {
+.garapon-layer {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
 
-.garapon-layer svg {
-  display: block;
-  width: 100%;
-  height: 100%;
+.result-ball-art {
+  position: absolute;
+  inset: 0;
+  animation: pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
 
-.garapon-rotor {
-  will-change: transform;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .draw-area {

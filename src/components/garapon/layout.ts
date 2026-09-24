@@ -1,18 +1,18 @@
 export const CANVAS_SIZE = 400;
 
 export const LAYOUT = {
-  drumCenter: { cx: 200, cy: 165 },
+  drumCenter: { cx: 233, cy: 177 },
   drumRadius: 118,
-  ballRadius: 16,
+  ballRadius: 15,
   ballPath: {
-    exit: { x: 256, y: 260 },
-    chute: { x: 298, y: 298 },
-    rest: { x: 330, y: 313 },
+    exit: { x: 111, y: 216 },
+    chute: { x: 108, y: 280 },
+    rest: { x: 107, y: 314 },
   },
 };
 
 export const TIMING = {
-  spinMs: 2000,
-  spinTurns: 4,
-  dropMs: 800,
+  spinMs: 2400,
+  spinTurns: 3,
+  dropMs: 850,
 };

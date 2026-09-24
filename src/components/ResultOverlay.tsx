@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { getPrize, type PrizeId } from "#/lottery/config";
 import { Confetti } from "./Confetti";
+import { PrizeBall } from "./garapon/generatedArt";
 
 export function ResultOverlay({ prizeId, onClose }: { prizeId: PrizeId; onClose: () => void }) {
   const prize = getPrize(prizeId);
@@ -13,7 +14,9 @@ export function ResultOverlay({ prizeId, onClose }: { prizeId: PrizeId; onClose:
         <div className="result-ball">
           <span className="result-ripple" />
           <span className="result-ripple result-ripple--late" />
-          <span className="result-ball-core" />
+          <span className="result-ball-art">
+            <PrizeBall prizeId={prizeId} />
+          </span>
         </div>
         <p className="result-name">{prize.name}</p>
         <p className="result-message">おめでとうございます！</p>

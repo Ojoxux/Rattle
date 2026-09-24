@@ -18,7 +18,7 @@ export const Route = createFileRoute("/")({ component: LotteryPage });
 
 const RESULT_DELAY_MS = 600;
 
-type Phase = "idle" | "drawing" | "result";
+type Phase = "idle" | "drawing" | "dropping" | "result";
 
 function LotteryPage() {
   const [state, setState] = useState<LotteryState | null>(null);
@@ -96,7 +96,7 @@ function LotteryPage() {
 
       <main className="app-main">
         <div className="garapon-stage">
-          <Garapon ref={garaponRef} />
+          <Garapon ref={garaponRef} onDrop={() => setPhase("dropping")} />
         </div>
 
         <div className="draw-area">
@@ -111,8 +111,13 @@ function LotteryPage() {
               className="button button--primary button--draw"
               onClick={handleDraw}
               disabled={!state || phase !== "idle"}
+              aria-live="polite"
             >
-              {phase === "drawing" ? "抽選中…" : "くじを引く"}
+              {phase === "drawing"
+                ? "まわしています…"
+                : phase === "dropping"
+                  ? "結果を表示中…"
+                  : "くじを引く"}
             </button>
           )}
         </div>
