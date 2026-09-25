@@ -47,10 +47,10 @@ const styles = stylex.create({
   },
   main: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 24,
+    gap: 32,
     minHeight: 0,
   },
   stage: {
@@ -58,6 +58,7 @@ const styles = stylex.create({
     minHeight: 0,
     aspectRatio: "1",
     maxWidth: "100%",
+    maxHeight: "100%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -81,23 +82,23 @@ const styles = stylex.create({
     fontSize: "1.1rem",
     color: colors.textSoft,
   },
-  footer: {
-    paddingTop: 24,
-  },
   stockList: {
     display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "center",
+    flexDirection: "column",
     gap: 12,
     margin: 0,
     padding: 0,
     listStyle: "none",
+    flex: "none",
+    width: 220,
+    maxHeight: "100%",
+    overflowY: "auto",
   },
   stockItem: {
     display: "flex",
     alignItems: "center",
     gap: 10,
-    minWidth: 180,
+    width: "100%",
     padding: {
       default: "14px 20px",
       "@media (max-height: 720px)": "10px 16px",
@@ -209,31 +210,6 @@ function LotteryPage() {
           <Garapon ref={garaponRef} onDrop={() => setPhase("dropping")} />
         </div>
 
-        <div {...stylex.props(styles.drawArea)}>
-          {finished && phase === "idle" ? (
-            <div {...stylex.props(styles.finished)}>
-              <p {...stylex.props(styles.finishedTitle)}>くじは終了しました</p>
-              <p {...stylex.props(styles.finishedSub)}>たくさんのご利用ありがとうございました！</p>
-            </div>
-          ) : (
-            <button
-              type="button"
-              {...stylex.props(button.base, button.primary, button.draw)}
-              onClick={handleDraw}
-              disabled={!state || phase !== "idle"}
-              aria-live="polite"
-            >
-              {phase === "drawing"
-                ? "まわしています…"
-                : phase === "dropping"
-                  ? "結果を表示中…"
-                  : "くじを引く"}
-            </button>
-          )}
-        </div>
-      </main>
-
-      <footer {...stylex.props(styles.footer)}>
         <ul {...stylex.props(styles.stockList)}>
           {remainingPrizes.map((p) => (
             <li key={p.id} {...stylex.props(styles.stockItem)}>
@@ -247,7 +223,30 @@ function LotteryPage() {
             </li>
           ))}
         </ul>
-      </footer>
+      </main>
+
+      <div {...stylex.props(styles.drawArea)}>
+        {finished && phase === "idle" ? (
+          <div {...stylex.props(styles.finished)}>
+            <p {...stylex.props(styles.finishedTitle)}>くじは終了しました</p>
+            <p {...stylex.props(styles.finishedSub)}>たくさんのご利用ありがとうございました！</p>
+          </div>
+        ) : (
+          <button
+            type="button"
+            {...stylex.props(button.base, button.primary, button.draw)}
+            onClick={handleDraw}
+            disabled={!state || phase !== "idle"}
+            aria-live="polite"
+          >
+            {phase === "drawing"
+              ? "まわしています…"
+              : phase === "dropping"
+                ? "結果を表示中…"
+                : "くじを引く"}
+          </button>
+        )}
+      </div>
 
       {phase === "result" && result && (
         <ResultOverlay prizeId={result} onClose={handleCloseResult} />
