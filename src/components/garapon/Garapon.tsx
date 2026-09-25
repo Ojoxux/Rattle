@@ -25,6 +25,10 @@ function Ball({ prizeId, color }: { prizeId: PrizeId; color: string }) {
 const pos = (p: { x: number; y: number }, scale = 1) =>
   `translate(${p.x}px, ${p.y}px) scale(${scale})`;
 
+const BURST_COUNT = 24;
+const BURST_INTERVAL_MS = 28;
+const BURST_WINNER_DELAY_MS = BURST_COUNT * BURST_INTERVAL_MS + 180;
+
 const styles = stylex.create({
   garapon: {
     position: "relative",
@@ -48,10 +52,13 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
   const spinFrame = useRef<number | null>(null);
   const finishSpin = useRef<(() => void) | null>(null);
   const ballRef = useRef<SVGGElement>(null);
+  const burstRefs = useRef<(SVGGElement | null)[]>([]);
   const animations = useRef<Animation[]>([]);
   const run = useRef(0);
   const cancelDropSound = useRef<(() => void) | null>(null);
-  const [ball, setBall] = useState<{ prizeId: PrizeId; color: string } | null>(null);
+  const [ball, setBall] = useState<{ prizeId: PrizeId; color: string; burst: boolean } | null>(
+    null,
+  );
 
   const cancel = () => {
     run.current += 1;
@@ -73,10 +80,9 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
       cancel();
       const currentRun = run.current;
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      setBall({ prizeId, color });
       playSpinSound();
 
-      // Select once per draw: normal 50%, late 25%, early 25%.
+      // Select once per draw: each presentation has a 25% chance.
       const roll = Math.random();
       const variant = reducedMotion
         ? "normal"
@@ -84,16 +90,62 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
           ? "late"
           : roll < 0.5
             ? "early"
-            : "normal";
+            : roll < 0.75
+              ? "burst"
+              : "normal";
+      setBall({ prizeId, color, burst: variant === "burst" });
       const spinMs = reducedMotion ? 180 : TIMING.spinMs;
       const dropAt = variant === "early" ? 200 : spinMs + (variant === "late" ? 1000 : 0);
       const dropMs = reducedMotion ? 150 : variant === "late" ? 160 : TIMING.dropMs;
       let dropFinished: Promise<unknown> | undefined;
       const startDrop = () => {
         onDrop?.();
-        if (!reducedMotion) cancelDropSound.current = scheduleDropSound(dropMs * TIMING.landOffset);
+        const winnerDelay = variant === "burst" ? BURST_WINNER_DELAY_MS : 0;
+        if (!reducedMotion) {
+          cancelDropSound.current = scheduleDropSound(winnerDelay + dropMs * TIMING.landOffset);
+        }
 
         const { exit, chute, rest } = LAYOUT.ballPath;
+        const finished: Promise<unknown>[] = [];
+        if (variant === "burst") {
+          burstRefs.current.forEach((node, index) => {
+            // Stagger the stream, then scatter balls off both sides of the tray.
+            const direction = index % 2 === 0 ? -1 : 1;
+            const spread = 40 + ((index * 37) % 145);
+            const bounceHeight = 45 + ((index * 19) % 95);
+            const size = 0.7 + (index % 4) * 0.1;
+            const flying = node?.animate(
+              [
+                { transform: pos(exit, size * 0.5), opacity: 0, offset: 0 },
+                { transform: pos(exit, size), opacity: 1, offset: 0.05 },
+                {
+                  transform: pos({ x: chute.x + (index % 5) * 3, y: rest.y }, size),
+                  offset: 0.3,
+                  easing: "ease-out",
+                },
+                {
+                  transform: pos(
+                    { x: rest.x + direction * spread * 0.6, y: rest.y - bounceHeight },
+                    size,
+                  ),
+                  offset: 0.6,
+                  easing: "ease-in",
+                },
+                {
+                  transform: pos({ x: rest.x + direction * spread, y: 440 }, size),
+                  opacity: 1,
+                  offset: 0.95,
+                },
+                { transform: pos({ x: rest.x + direction * spread, y: 460 }, size), opacity: 0 },
+              ],
+              { duration: 1000, delay: index * BURST_INTERVAL_MS, fill: "forwards" },
+            );
+            if (flying) {
+              animations.current.push(flying);
+              finished.push(flying.finished.catch(() => {}));
+            }
+          });
+        }
         const drop = ballRef.current?.animate(
           reducedMotion
             ? [
@@ -112,10 +164,13 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
                 },
                 { transform: pos({ x: rest.x + 4, y: rest.y }), opacity: 1 },
               ],
-          { duration: dropMs, fill: "forwards" },
+          { duration: dropMs, delay: winnerDelay, fill: "forwards" },
         );
-        if (drop) animations.current.push(drop);
-        dropFinished = drop?.finished.catch(() => {});
+        if (drop) {
+          animations.current.push(drop);
+          finished.push(drop.finished.catch(() => {}));
+        }
+        dropFinished = Promise.all(finished);
       };
 
       await new Promise<void>((resolve) => {
@@ -176,6 +231,20 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
           {ball && <Ball prizeId={ball.prizeId} color={ball.color} />}
         </g>
         <Tray front />
+        {ball?.burst &&
+          Array.from({ length: BURST_COUNT }, (_, index) => {
+            return (
+              <g
+                key={index}
+                ref={(node) => {
+                  burstRefs.current[index] = node;
+                }}
+                style={{ opacity: 0 }}
+              >
+                <Ball prizeId={ball.prizeId} color={ball.color} />
+              </g>
+            );
+          })}
       </svg>
     </div>
   );

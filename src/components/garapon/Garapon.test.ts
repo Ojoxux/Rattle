@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { act, createElement, createRef } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vite-plus/test";
 import { Garapon, type GaraponHandle } from "./Garapon";
 import { stopSpinSound } from "#/audio/drawSound";
 
@@ -16,6 +16,8 @@ let host: HTMLDivElement;
 let reducedMotion = false;
 let dropDuration = 0;
 let cancelAnimation: ReturnType<typeof vi.fn>;
+let animateSpy: MockInstance<Element["animate"]>;
+let cancellations: ReturnType<typeof vi.fn>[];
 const handle = createRef<GaraponHandle>();
 const onDrop = vi.fn();
 
@@ -29,20 +31,23 @@ beforeEach(async () => {
   vi.stubGlobal("matchMedia", () => ({ matches: reducedMotion }));
   reducedMotion = false;
   dropDuration = 0;
+  cancellations = [];
   onDrop.mockClear();
   vi.mocked(stopSpinSound).mockClear();
-  vi.spyOn(Element.prototype, "animate").mockImplementation((_frames, options) => {
+  animateSpy = vi.spyOn(Element.prototype, "animate").mockImplementation((_frames, options) => {
     dropDuration = (options as KeyframeAnimationOptions).duration as number;
     let rejectFinished: (reason?: unknown) => void;
     let timer: ReturnType<typeof setTimeout>;
     const finished = new Promise<Animation>((resolve, reject) => {
       rejectFinished = reject;
-      timer = setTimeout(() => resolve({} as Animation), dropDuration);
+      const delay = (options as KeyframeAnimationOptions).delay ?? 0;
+      timer = setTimeout(() => resolve({} as Animation), dropDuration + delay);
     });
     cancelAnimation = vi.fn(() => {
       clearTimeout(timer);
       rejectFinished(new Error("cancelled"));
     });
+    cancellations.push(cancelAnimation);
     return { finished, cancel: cancelAnimation } as unknown as Animation;
   });
   host = document.createElement("div");
@@ -139,6 +144,46 @@ describe("garapon comic timing", () => {
     await advance(180);
     expect(dropDuration).toBe(150);
     await advance(150);
+    expect(done()).toBe(true);
+  });
+
+  it("spills many balls but emits one result only after the winning ball settles", async () => {
+    const done = await draw(0.6);
+    await advance(2400);
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    const calls = animateSpy.mock.calls;
+    expect(calls).toHaveLength(25);
+    const options = calls.map((call) => call[1] as KeyframeAnimationOptions);
+    expect(options[0].delay).toBe(0);
+    expect(options[23].delay).toBeGreaterThan(600);
+    expect(options[24].delay).toBeGreaterThan(options[23].delay!);
+    await advance(1701);
+    expect(done()).toBe(false);
+    await advance(1);
+    expect(done()).toBe(true);
+    expect(onDrop).toHaveBeenCalledTimes(1);
+  });
+
+  it("cancels every burst ball and allows a clean subsequent draw", async () => {
+    const done = await draw(0.6);
+    await advance(2500);
+    const burstCancellations = [...cancellations];
+    await act(async () => handle.current!.reset());
+    expect(done()).toBe(true);
+    expect(burstCancellations).toHaveLength(25);
+    burstCancellations.forEach((cancel) => expect(cancel).toHaveBeenCalledOnce());
+    animateSpy.mockClear();
+    const nextDone = await draw(0.8);
+    await advance(3250);
+    expect(animateSpy).toHaveBeenCalledTimes(1);
+    expect(nextDone()).toBe(true);
+  });
+
+  it("skips the burst when reduced motion is requested", async () => {
+    reducedMotion = true;
+    const done = await draw(0.6);
+    await advance(330);
+    expect(animateSpy).toHaveBeenCalledTimes(1);
     expect(done()).toBe(true);
   });
 });
