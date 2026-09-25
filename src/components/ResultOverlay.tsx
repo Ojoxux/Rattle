@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import * as stylex from "@stylexjs/stylex";
 import { getPrize, type PrizeId } from "#/lottery/config";
 import { colors } from "#/tokens.stylex";
@@ -101,6 +101,11 @@ const styles = stylex.create({
 export function ResultOverlay({ prizeId, onClose }: { prizeId: PrizeId; onClose: () => void }) {
   const prize = getPrize(prizeId);
   const isTop = prizeId === "A";
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+  }, []);
 
   return (
     <div
@@ -124,6 +129,7 @@ export function ResultOverlay({ prizeId, onClose }: { prizeId: PrizeId; onClose:
         <p {...stylex.props(styles.name)}>{prize.name}</p>
         <p {...stylex.props(styles.message)}>おめでとうございます！</p>
         <button
+          ref={closeRef}
           type="button"
           {...stylex.props(button.base, button.primary, button.result)}
           onClick={onClose}
