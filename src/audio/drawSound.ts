@@ -45,7 +45,7 @@ export function stopSpinSound() {
 const DROP_ATTACK_LEAD_MS = 20;
 
 export function scheduleDropSound(delayMs: number) {
-  window.setTimeout(
+  const timer = window.setTimeout(
     () => {
       try {
         const el = getDropAudio();
@@ -57,4 +57,8 @@ export function scheduleDropSound(delayMs: number) {
     },
     Math.max(0, delayMs - DROP_ATTACK_LEAD_MS),
   );
+  return () => {
+    window.clearTimeout(timer);
+    dropAudio?.pause();
+  };
 }

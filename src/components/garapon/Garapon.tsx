@@ -50,6 +50,7 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
   const ballRef = useRef<SVGGElement>(null);
   const animations = useRef<Animation[]>([]);
   const run = useRef(0);
+  const cancelDropSound = useRef<(() => void) | null>(null);
   const [ball, setBall] = useState<{ prizeId: PrizeId; color: string } | null>(null);
 
   const cancel = () => {
@@ -61,6 +62,8 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
     animations.current.forEach((animation) => animation.cancel());
     animations.current = [];
     stopSpinSound();
+    cancelDropSound.current?.();
+    cancelDropSound.current = null;
   };
 
   useEffect(() => cancel, []);
@@ -73,16 +76,69 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
       setBall({ prizeId, color });
       playSpinSound();
 
+      // Select once per draw: normal 50%, late 25%, early 25%.
+      const roll = Math.random();
+      const variant = reducedMotion
+        ? "normal"
+        : roll < 0.25
+          ? "late"
+          : roll < 0.5
+            ? "early"
+            : "normal";
+      const spinMs = reducedMotion ? 180 : TIMING.spinMs;
+      const dropAt = variant === "early" ? 200 : spinMs + (variant === "late" ? 1000 : 0);
+      const dropMs = reducedMotion ? 150 : variant === "late" ? 160 : TIMING.dropMs;
+      let dropFinished: Promise<unknown> | undefined;
+      const startDrop = () => {
+        onDrop?.();
+        if (!reducedMotion) cancelDropSound.current = scheduleDropSound(dropMs * TIMING.landOffset);
+
+        const { exit, chute, rest } = LAYOUT.ballPath;
+        const drop = ballRef.current?.animate(
+          reducedMotion
+            ? [
+                { transform: pos(rest), opacity: 0 },
+                { transform: pos(rest), opacity: 1 },
+              ]
+            : [
+                { transform: pos(exit, 0.4), opacity: 0, easing: "ease-out" },
+                { transform: pos(exit, 1), opacity: 1, offset: 0.15, easing: "ease-in" },
+                { transform: pos(chute), offset: 0.5, easing: "ease-in" },
+                { transform: pos(rest), offset: TIMING.landOffset, easing: "ease-out" },
+                {
+                  transform: pos({ x: rest.x + 3, y: rest.y - 13 }),
+                  offset: 0.86,
+                  easing: "ease-in",
+                },
+                { transform: pos({ x: rest.x + 4, y: rest.y }), opacity: 1 },
+              ],
+          { duration: dropMs, fill: "forwards" },
+        );
+        if (drop) animations.current.push(drop);
+        dropFinished = drop?.finished.catch(() => {});
+      };
+
       await new Promise<void>((resolve) => {
         finishSpin.current = resolve;
         const started = performance.now();
-        const duration = reducedMotion ? 180 : TIMING.spinMs;
+        let dropped = false;
+        let stopped = false;
         const tick = (now: number) => {
-          const progress = Math.min(1, (now - started) / duration);
-          // Ease angular speed up and down, retaining one fixed 3D projection.
-          const eased = progress * progress * (3 - 2 * progress);
-          setAngle(reducedMotion || progress === 1 ? 0 : eased * Math.PI * 2 * TIMING.spinTurns);
-          if (progress < 1) {
+          const elapsed = now - started;
+          const progress = Math.min(1, elapsed / spinMs);
+          if (!stopped) {
+            const eased = progress * progress * (3 - 2 * progress);
+            setAngle(reducedMotion || progress === 1 ? 0 : eased * Math.PI * 2 * TIMING.spinTurns);
+            if (progress === 1) {
+              stopped = true;
+              stopSpinSound();
+            }
+          }
+          if (!dropped && elapsed >= dropAt) {
+            dropped = true;
+            startDrop();
+          }
+          if (!stopped || !dropped) {
             spinFrame.current = requestAnimationFrame(tick);
           } else {
             spinFrame.current = null;
@@ -93,33 +149,8 @@ export const Garapon = forwardRef<GaraponHandle, { onDrop?: () => void }>(functi
         spinFrame.current = requestAnimationFrame(tick);
       });
       if (currentRun !== run.current) return;
-      stopSpinSound();
-      onDrop?.();
-      if (!reducedMotion) scheduleDropSound(TIMING.dropMs * TIMING.landOffset);
-
-      const { exit, chute, rest } = LAYOUT.ballPath;
-      const drop = ballRef.current?.animate(
-        reducedMotion
-          ? [
-              { transform: pos(rest), opacity: 0 },
-              { transform: pos(rest), opacity: 1 },
-            ]
-          : [
-              { transform: pos(exit, 0.4), opacity: 0, easing: "ease-out" },
-              { transform: pos(exit, 1), opacity: 1, offset: 0.15, easing: "ease-in" },
-              { transform: pos(chute), offset: 0.5, easing: "ease-in" },
-              { transform: pos(rest), offset: TIMING.landOffset, easing: "ease-out" },
-              {
-                transform: pos({ x: rest.x + 3, y: rest.y - 13 }),
-                offset: 0.86,
-                easing: "ease-in",
-              },
-              { transform: pos({ x: rest.x + 4, y: rest.y }), opacity: 1 },
-            ],
-        { duration: reducedMotion ? 150 : TIMING.dropMs, fill: "forwards" },
-      );
-      if (drop) animations.current.push(drop);
-      await drop?.finished.catch(() => {});
+      // Early balls wait for the drum; late balls wait for their landing.
+      await dropFinished;
     },
     reset() {
       cancel();
